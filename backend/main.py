@@ -1,19 +1,34 @@
-from fastapi import FastAPI
-from pydantic import BaseModel
+from fastapi import FastAPI, Depends
+from sqlalchemy.orm import Session
 from transformers import pipeline
+from backend.database import SessionLocal, init_db, AnalyzedText
 
 app = FastAPI()
 
-# Wczytanie modelu NLP do analizy fake newsów
+# 🔹 Wczytanie modelu NLP do analizy fake newsów
 nlp_model = pipeline("text-classification", model="facebook/bart-large-mnli")
 
+# 🔹 Inicjalizacja bazy danych
+init_db()
 
-# Model wejściowy dla analizy tekstu
+
+# 🔹 Funkcja do pobierania sesji bazy danych
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+# 🔹 Model wejściowy dla analizy tekstu
+from pydantic import BaseModel
+
+
 class TextAnalysisRequest(BaseModel):
     text: str
 
 
-# Model odpowiedzi API
 class AnalysisResponse(BaseModel):
     text: str
     fake_news_score: float
@@ -22,7 +37,7 @@ class AnalysisResponse(BaseModel):
 
 
 @app.post("/analyze_text", response_model=AnalysisResponse)
-def analyze_text(request: TextAnalysisRequest):
+def analyze_text(request: TextAnalysisRequest, db: Session = Depends(get_db)):
     """
     Endpoint do analizy tekstu pod kątem fake newsów.
     Zwraca ocenę prawdopodobieństwa fałszywej informacji oraz ocenę wiarygodności źródła.
@@ -33,15 +48,19 @@ def analyze_text(request: TextAnalysisRequest):
     fake_news_score = result[0]['score'] if classification_label == "FAKE" else (1 - result[0]['score'])
     source_reliability = 1 - fake_news_score
 
+    # 🔹 Zapisanie wyniku do bazy danych
+    analyzed_text = AnalyzedText(
+        text=request.text,
+        fake_news_score=fake_news_score,
+        source_reliability=source_reliability,
+        classification=classification_label
+    )
+    db.add(analyzed_text)
+    db.commit()
+
     return AnalysisResponse(
         text=request.text,
         fake_news_score=fake_news_score,
         source_reliability=source_reliability,
         classification=classification_label
     )
-
-
-if __name__ == "__main__":
-    import uvicorn
-
-    uvicorn.run(app, host="0.0.0.0", port=8000)
