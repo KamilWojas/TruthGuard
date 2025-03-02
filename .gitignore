@@ -1,0 +1,13 @@
+# Ignorowanie wirtualnego środowiska
+.venv/
+venv/
+
+# Ignorowanie plików Pythona
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignorowanie plików systemowych
+*.log
+.DS_Store
