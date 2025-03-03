@@ -10,7 +10,7 @@ from pydantic import BaseModel
 app = FastAPI()
 
 # 🔹 Wczytanie modelu NLP do analizy fake newsów
-nlp_model = pipeline("text-classification", model="mrm8488/bert-mini-fakenews")
+nlp_model = pipeline("text-classification", model="facebook/bart-large-mnli")
 
 # 🔹 Inicjalizacja bazy danych
 init_db()
