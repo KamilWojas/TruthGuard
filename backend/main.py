@@ -31,7 +31,6 @@ def get_db():
     finally:
         db.close()
 
-
 # 🔹 Model wejściowy dla analizy tekstu
 class TextAnalysisRequest(BaseModel):
     text: str
