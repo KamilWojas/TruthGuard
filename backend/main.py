@@ -1,10 +1,10 @@
+from typing import Optional
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
 from transformers import pipeline
 from backend.database import SessionLocal, init_db, AnalyzedText
 import json
 import tldextract
-from typing import Optional
 from pydantic import BaseModel
 
 app = FastAPI()
