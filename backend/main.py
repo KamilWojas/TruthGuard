@@ -6,7 +6,7 @@ from backend.database import SessionLocal, init_db, AnalyzedText
 app = FastAPI()
 
 # 🔹 Wczytanie modelu NLP do analizy fake newsów
-nlp_model = pipeline("text-classification", model="facebook/bart-large-mnli")
+nlp_model = pipeline("text-classification", model="mrm8488/bert-mini-fakenews")
 
 # 🔹 Inicjalizacja bazy danych
 init_db()
@@ -35,6 +35,9 @@ class AnalysisResponse(BaseModel):
     source_reliability: float
     classification: str
 
+@app.get("/")
+def home():
+    return {"message": "TruthGuard API działa! Sprawdź /docs"}
 
 @app.post("/analyze_text", response_model=AnalysisResponse)
 def analyze_text(request: TextAnalysisRequest, db: Session = Depends(get_db)):
