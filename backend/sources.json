@@ -1,0 +1,16 @@
+{
+    "trusted_sources": [
+        "bbc.com",
+        "cnn.com",
+        "reuters.com",
+        "factcheck.org",
+        "snopes.com"
+    ],
+    "fake_news_sources": [
+        "sputniknews.com",
+        "rt.com",
+        "infowars.com",
+        "yournewswire.com",
+        "beforeitsnews.com"
+    ]
+}
