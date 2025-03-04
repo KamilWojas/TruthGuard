@@ -57,8 +57,18 @@ def analyze_text(request: TextAnalysisRequest, db: Session = Depends(get_db)):
 
     # 🔹 Analiza NLP
     result = nlp_model(request.text)
+
     classification_label = result[0]['label']
-    fake_news_score = result[0]['score'] if classification_label == "FAKE" else (1 - result[0]['score'])
+    confidence_score = result[0]['score']
+
+    # 🔹 Mapowanie etykiet modelu na FAKE / TRUE
+    if classification_label.lower() in ["contradiction", "neutral"]:
+        classification_label = "FAKE"
+        fake_news_score = confidence_score
+    else:
+        classification_label = "TRUE"
+        fake_news_score = 1 - confidence_score
+
     source_reliability = 1 - fake_news_score
 
     # 🔹 Zapisanie wyniku do bazy danych
